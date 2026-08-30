@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Espiritualidad y recursos · Círculo Laudato Si' VLC</title>
+  <meta name="description" content="La espiritualidad del Círculo Laudato Si' de València y recursos abiertos: Laudato Si', Laudate Deum y el Movimiento.">
+  <link rel="stylesheet" href="assets/estilo.css">
+</head>
+<body>
+
+  <header class="cabecera">
+    <div class="cabecera-fila">
+      <a class="marca" href="index.html" aria-label="Inicio · Círculo Laudato Si' VLC">
+        <img src="assets/img/logo-circulo.png" alt="Laudato Si' VLC · Arrupe València">
+      </a>
+      <button class="menu-boton" id="menuBoton" aria-label="Abrir menú" aria-expanded="false" aria-controls="menuPrincipal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>
+        </svg>
+      </button>
+    </div>
+    <ul class="navegacion" id="menuPrincipal">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="que-es.html">Qué es el Círculo</a></li>
+      <li><a href="actividades.html">Actividades</a></li>
+      <li><a href="espiritualidad.html">Espiritualidad</a></li>
+      <li><a href="index.html#contacto">Contacto</a></li>
+      <li><a class="privada" href="miembros.html" title="Acceso reservado a miembros">Zona de miembros</a></li>
+    </ul>
+  </header>
+
+  <section class="interior-cabecera">
+    <div class="contenedor">
+      <p class="eyebrow" id="pEyebrow"></p>
+      <h1 id="pTitulo"></h1>
+    </div>
+  </section>
+
+  <section class="seccion">
+    <div class="contenedor">
+      <div class="prosa"><p id="pIntro"></p></div>
+      <div id="bloques" style="margin-top:1.5rem"></div>
+    </div>
+  </section>
+
+  <section class="seccion seccion-vel">
+    <div class="contenedor">
+      <div class="seccion-titulo">
+        <p class="eyebrow">Recursos</p>
+        <h2>Para profundizar</h2>
+      </div>
+      <div class="accesos" id="recursos"></div>
+    </div>
+  </section>
+
+  <footer class="pie">
+    <div class="contenedor">
+      <div class="pie-logos">
+        <a class="movement" href="https://laudatosimovement.org/" target="_blank" rel="noopener"><img src="assets/img/logo-movement.png" alt="Laudato Si' Movement"></a>
+        <a class="arrupe" id="pieArrupe" href="#" rel="noopener"><img src="assets/img/logo-arrupe.png" alt="Centro Arrupe · Jesuitas València"></a>
+      </div>
+      <p class="pie-nota">
+        Círculo Laudato Si' integrado en el <a href="https://laudatosimovement.org/" target="_blank" rel="noopener">Laudato Si' Movement</a>
+        y vinculado al Centro Arrupe · Jesuitas València.<br>© <span id="anyo"></span> Círculo Laudato Si' VLC.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    var boton=document.getElementById('menuBoton'), menu=document.getElementById('menuPrincipal');
+    boton.addEventListener('click',function(){var a=menu.classList.toggle('abierta');boton.setAttribute('aria-expanded',a?'true':'false');boton.setAttribute('aria-label',a?'Cerrar menú':'Abrir menú');});
+    menu.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){menu.classList.remove('abierta');boton.setAttribute('aria-expanded','false');});});
+    document.getElementById('anyo').textContent=new Date().getFullYear();
+    function esc(t){var d=document.createElement('div');d.textContent=t==null?'':t;return d.innerHTML;}
+    function realza(t){return esc(t).replace(/Laudato Si'/g,"<em>Laudato Si'</em>").replace(/Laudate Deum/g,"<em>Laudate Deum</em>");}
+
+    fetch('assets/datos.json').then(function(r){return r.json();}).then(function(d){
+      var pe=d.paginaEspiritualidad||{};
+      document.getElementById('pEyebrow').textContent=pe.eyebrow||'Espiritualidad';
+      document.getElementById('pTitulo').textContent=pe.titulo||'';
+      document.getElementById('pIntro').innerHTML=realza(pe.intro||'');
+
+      // Reutiliza los bloques imagen+texto de la sección espiritualidad
+      var bloques=(d.espiritualidad&&d.espiritualidad.bloques)||[];
+      document.getElementById('bloques').innerHTML=bloques.map(function(b,i){
+        var foto=b.foto?'<div class="bloque-foto"><img src="'+esc(b.foto)+'" alt=""></div>':'<div class="bloque-foto"><span>'+esc(b.textoFoto)+'</span></div>';
+        var parrs=(b.parrafos||[]).map(function(p){return '<p>'+realza(p)+'</p>';}).join('');
+        var bot=b.boton?'<a class="boton boton-borde" href="'+esc(b.botonEnlace)+'">'+esc(b.boton)+'</a>':'';
+        return '<div class="'+((i%2===1)?'bloque invertido':'bloque')+'">'+foto+'<div>'+parrs+bot+'</div></div>';
+      }).join('');
+
+      document.getElementById('recursos').innerHTML=(pe.recursos||[]).map(function(r){
+        return '<div class="tarjeta"><h3>'+esc(r.titulo)+'</h3><p>'+realza(r.texto)+'</p><a href="'+esc(r.enlace)+'" target="_blank" rel="noopener">Abrir →</a></div>';
+      }).join('');
+
+      if(d.sitio.enlaceArrupe) document.getElementById('pieArrupe').href=d.sitio.enlaceArrupe;
+    });
+  </script>
+</body>
+</html>

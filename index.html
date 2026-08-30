@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Círculo Laudato Si' VLC · Arrupe València</title>
+  <meta name="description" content="Círculo Laudato Si' de València, vinculado al Centro Arrupe. Una comunidad que reza y actúa por el cuidado de la casa común.">
+  <link rel="stylesheet" href="assets/estilo.css">
+</head>
+<body>
+
+  <header class="cabecera">
+    <div class="cabecera-fila">
+      <a class="marca" href="index.html" aria-label="Inicio · Círculo Laudato Si' VLC">
+        <img src="assets/img/logo-circulo.png" alt="Laudato Si' VLC · Arrupe València">
+      </a>
+      <button class="menu-boton" id="menuBoton" aria-label="Abrir menú" aria-expanded="false" aria-controls="menuPrincipal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>
+        </svg>
+      </button>
+    </div>
+    <ul class="navegacion" id="menuPrincipal">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="que-es.html">Qué es el Círculo</a></li>
+      <li><a href="actividades.html">Actividades</a></li>
+      <li><a href="espiritualidad.html">Espiritualidad</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+      <li><a class="privada" href="miembros.html" title="Acceso reservado a miembros">Zona de miembros</a></li>
+    </ul>
+  </header>
+
+  <section class="hero" id="hero" role="banner">
+    <div class="hero-texto">
+      <p class="hero-eyebrow" id="heroEyebrow"></p>
+      <h1 id="heroTitulo"></h1>
+      <p id="heroTexto"></p>
+      <a class="boton boton-claro" id="heroBoton" href="#contacto"></a>
+    </div>
+  </section>
+
+  <section class="seccion">
+    <div class="contenedor">
+      <div class="accesos" id="accesos"></div>
+    </div>
+  </section>
+
+  <section class="seccion seccion-vel" id="espiritualidad">
+    <div class="contenedor">
+      <div class="seccion-titulo">
+        <p class="eyebrow" id="espEyebrow"></p>
+        <h2 id="espTitulo"></h2>
+      </div>
+      <div id="espBloques"></div>
+    </div>
+  </section>
+
+  <section class="seccion" id="actividades">
+    <div class="contenedor">
+      <div class="seccion-titulo">
+        <p class="eyebrow" id="agEyebrow"></p>
+        <h2 id="agTitulo"></h2>
+      </div>
+      <ul class="citas" id="citas"></ul>
+    </div>
+  </section>
+
+  <section class="franja" id="contacto">
+    <h2 id="contTitulo"></h2>
+    <p id="contTexto"></p>
+    <a class="boton boton-claro" id="contBoton" href="#"></a>
+  </section>
+
+  <footer class="pie">
+    <div class="contenedor">
+      <div class="pie-logos">
+        <a class="movement" href="https://laudatosimovement.org/" target="_blank" rel="noopener">
+          <img src="assets/img/logo-movement.png" alt="Laudato Si' Movement">
+        </a>
+        <a class="arrupe" id="pieArrupe" href="#" rel="noopener">
+          <img src="assets/img/logo-arrupe.png" alt="Centro Arrupe · Jesuitas València">
+        </a>
+      </div>
+      <p class="pie-nota">
+        Círculo Laudato Si' integrado en el <a href="https://laudatosimovement.org/" target="_blank" rel="noopener">Laudato Si' Movement</a>
+        y vinculado al Centro Arrupe · Jesuitas València.<br>
+        © <span id="anyo"></span> Círculo Laudato Si' VLC.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    var boton = document.getElementById('menuBoton');
+    var menu = document.getElementById('menuPrincipal');
+    boton.addEventListener('click', function () {
+      var abierto = menu.classList.toggle('abierta');
+      boton.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+      boton.setAttribute('aria-label', abierto ? 'Cerrar menú' : 'Abrir menú');
+    });
+    menu.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () { menu.classList.remove('abierta'); boton.setAttribute('aria-expanded','false'); });
+    });
+    document.getElementById('anyo').textContent = new Date().getFullYear();
+
+    function esc(t){ var d=document.createElement('div'); d.textContent = t==null?'':t; return d.innerHTML; }
+    function realza(t){
+      return esc(t).replace(/Laudato Si'/g, "<em>Laudato Si'</em>").replace(/Laudate Deum/g, "<em>Laudate Deum</em>");
+    }
+
+    fetch('assets/datos.json')
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        var hero = document.getElementById('hero');
+        var deg = 'linear-gradient(180deg, rgba(20,60,40,0.15) 0%, rgba(20,60,40,0.72) 100%)';
+        if (d.hero.foto) { hero.style.backgroundImage = deg + ", url('" + d.hero.foto + "')"; }
+        document.getElementById('heroEyebrow').textContent = d.hero.eyebrow;
+        document.getElementById('heroTitulo').textContent = d.hero.titulo;
+        document.getElementById('heroTexto').innerHTML = realza(d.hero.texto);
+        document.getElementById('heroBoton').textContent = d.hero.boton;
+
+        var acc = document.getElementById('accesos');
+        acc.innerHTML = d.accesos.map(function(a){
+          return '<div class="tarjeta"><h3>'+esc(a.titulo)+'</h3><p>'+esc(a.texto)+'</p><a href="'+esc(a.enlace)+'">'+esc(a.enlaceTexto)+'</a></div>';
+        }).join('');
+
+        document.getElementById('espEyebrow').textContent = d.espiritualidad.eyebrow;
+        document.getElementById('espTitulo').textContent = d.espiritualidad.titulo;
+        var esp = document.getElementById('espBloques');
+        esp.innerHTML = d.espiritualidad.bloques.map(function(b, i){
+          var foto = b.foto ? '<div class="bloque-foto"><img src="'+esc(b.foto)+'" alt=""></div>' : '<div class="bloque-foto"><span>'+esc(b.textoFoto)+'</span></div>';
+          var parrs = b.parrafos.map(function(p){ return '<p>'+realza(p)+'</p>'; }).join('');
+          var bot = b.boton ? '<a class="boton boton-borde" href="'+esc(b.botonEnlace)+'">'+esc(b.boton)+'</a>' : '';
+          var clase = (i % 2 === 1) ? 'bloque invertido' : 'bloque';
+          return '<div class="'+clase+'">'+foto+'<div>'+parrs+bot+'</div></div>';
+        }).join('');
+
+        document.getElementById('agEyebrow').textContent = d.agenda.eyebrow;
+        document.getElementById('agTitulo').textContent = d.agenda.titulo;
+        var citas = document.getElementById('citas');
+        citas.innerHTML = d.agenda.citas.map(function(c){
+          return '<li><div class="cita-fecha"><span class="dia">'+esc(c.dia)+'</span><span class="mes">'+esc(c.mes)+'</span></div><div class="cita-cuerpo"><h3>'+esc(c.titulo)+'</h3><p>'+esc(c.detalle)+'</p></div></li>';
+        }).join('');
+
+        document.getElementById('contTitulo').textContent = d.contacto.titulo;
+        document.getElementById('contTexto').textContent = d.contacto.texto;
+        var cb = document.getElementById('contBoton');
+        cb.textContent = d.contacto.boton;
+        cb.href = 'mailto:' + (d.sitio.correo || '');
+
+        if (d.sitio.enlaceArrupe) document.getElementById('pieArrupe').href = d.sitio.enlaceArrupe;
+      })
+      .catch(function(e){ console.error('No se pudo cargar datos.json', e); });
+  </script>
+
+</body>
+</html>

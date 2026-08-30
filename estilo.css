@@ -1,0 +1,362 @@
+/* =========================================================
+   Círculo Laudato Si' VLC — Arrupe València
+   Hoja de estilos · mobile first
+   Paleta tomada del globo del logotipo (verde y azul)
+   ========================================================= */
+
+:root {
+  /* Colores derivados del globo del logo */
+  --verde: #2e9e5b;          /* verde vegetal de los gajos */
+  --verde-hondo: #1f7a45;    /* verde más intenso, para hover y textos sobre claro */
+  --verde-vel: #eef6f0;      /* verde casi imperceptible, fondos alternos */
+  --azul: #1ba3e0;           /* azul del centro del globo, acento */
+  --azul-hondo: #147fb0;     /* azul para hover de enlaces */
+  --tinta: #1a1a1a;          /* negro de texto */
+  --tinta-suave: #4a4a4a;    /* gris para texto secundario */
+  --blanco: #ffffff;
+  --linea: #e2e8e4;          /* separadores muy tenues */
+
+  --ancho-max: 1080px;
+  --radio: 10px;
+  --sombra: 0 2px 14px rgba(31, 122, 69, 0.08);
+
+  --fuente: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ---------- Base ---------- */
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--fuente);
+  font-size: 1.0625rem;      /* ~17px, cómodo en móvil */
+  line-height: 1.65;
+  color: var(--tinta);
+  background: var(--blanco);
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; height: auto; display: block; }
+
+a { color: var(--azul-hondo); text-decoration: none; }
+a:hover { color: var(--verde-hondo); text-decoration: underline; }
+
+h1, h2, h3 {
+  line-height: 1.2;
+  color: var(--tinta);
+  font-weight: 700;
+  margin: 0 0 0.6em;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.2rem; }
+
+p { margin: 0 0 1.1em; }
+
+.contenedor {
+  width: 100%;
+  max-width: var(--ancho-max);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+/* Foco visible para navegación por teclado */
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--azul);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- Cabecera ---------- */
+.cabecera {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: saturate(180%) blur(6px);
+  border-bottom: 1px solid var(--linea);
+}
+
+.cabecera-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 1.25rem;
+  max-width: var(--ancho-max);
+  margin: 0 auto;
+}
+
+.marca img { height: 46px; width: auto; }
+
+/* Menú */
+.menu-boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px; height: 46px;
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  background: var(--blanco);
+  cursor: pointer;
+  color: var(--verde-hondo);
+}
+.menu-boton svg { width: 24px; height: 24px; }
+
+.navegacion {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0.4rem 1.25rem 1rem;
+}
+.navegacion.abierta { display: block; }
+
+.navegacion li { margin: 0; }
+.navegacion a {
+  display: block;
+  padding: 0.85rem 0.5rem;
+  color: var(--tinta);
+  font-weight: 600;
+  border-bottom: 1px solid var(--linea);
+}
+.navegacion a:hover { color: var(--verde-hondo); text-decoration: none; }
+.navegacion a.privada { color: var(--verde-hondo); }
+
+/* ---------- Hero de portada ---------- */
+.hero {
+  position: relative;
+  min-height: 78vh;
+  display: flex;
+  align-items: flex-end;
+  color: var(--blanco);
+  background:
+    linear-gradient(180deg, rgba(20,60,40,0.15) 0%, rgba(20,60,40,0.72) 100%),
+    var(--verde-hondo);
+  background-size: cover;
+  background-position: center;
+}
+/* Cuando haya foto real, se pone como imagen de fondo inline en el HTML */
+
+.hero-texto {
+  padding: 2.5rem 1.25rem 3rem;
+  max-width: var(--ancho-max);
+  margin: 0 auto;
+  width: 100%;
+}
+.hero-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin: 0 0 0.6rem;
+  color: #cdeede;
+}
+.hero h1 {
+  color: var(--blanco);
+  font-size: 2.15rem;
+  max-width: 18ch;
+  text-shadow: 0 1px 12px rgba(0,0,0,0.25);
+}
+.hero p {
+  font-size: 1.1rem;
+  max-width: 40ch;
+  color: #f0f7f2;
+  margin-bottom: 1.6rem;
+}
+
+/* ---------- Botones ---------- */
+.boton {
+  display: inline-block;
+  padding: 0.85rem 1.4rem;
+  border-radius: var(--radio);
+  font-weight: 700;
+  cursor: pointer;
+  border: 2px solid transparent;
+  text-align: center;
+}
+.boton:hover { text-decoration: none; }
+.boton-primario { background: var(--azul); color: var(--blanco); }
+.boton-primario:hover { background: var(--azul-hondo); color: var(--blanco); }
+.boton-claro { background: var(--blanco); color: var(--verde-hondo); }
+.boton-claro:hover { background: #f2faf5; color: var(--verde-hondo); }
+.boton-borde { border-color: var(--verde); color: var(--verde-hondo); background: transparent; }
+.boton-borde:hover { background: var(--verde-vel); color: var(--verde-hondo); }
+
+/* ---------- Secciones ---------- */
+.seccion { padding: 3rem 0; }
+.seccion-vel { background: var(--verde-vel); }
+
+.seccion-titulo {
+  text-align: left;
+  margin-bottom: 1.8rem;
+}
+.seccion-titulo .eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--verde-hondo);
+  margin: 0 0 0.4rem;
+}
+
+/* Tres accesos rápidos */
+.accesos { display: grid; gap: 1.1rem; }
+.tarjeta {
+  background: var(--blanco);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  padding: 1.5rem;
+  box-shadow: var(--sombra);
+}
+.tarjeta h3 { color: var(--verde-hondo); }
+.tarjeta p { color: var(--tinta-suave); margin-bottom: 1rem; }
+.tarjeta a { font-weight: 700; }
+
+/* Bloque imagen + texto alternos */
+.bloque { display: grid; gap: 1.4rem; align-items: center; margin-bottom: 2.5rem; }
+.bloque:last-child { margin-bottom: 0; }
+.bloque-foto {
+  border-radius: var(--radio);
+  overflow: hidden;
+  background: var(--verde-vel);
+  aspect-ratio: 4 / 3;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--verde-hondo);
+  font-weight: 600;
+  border: 1px dashed var(--verde);
+}
+.bloque-foto img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Lista de próximas citas */
+.citas { list-style: none; margin: 0; padding: 0; }
+.citas li {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--linea);
+}
+.citas li:last-child { border-bottom: none; }
+.cita-fecha {
+  flex: 0 0 auto;
+  min-width: 3.4rem;
+  text-align: center;
+  color: var(--verde-hondo);
+  font-weight: 700;
+  line-height: 1.1;
+}
+.cita-fecha .dia { display: block; font-size: 1.5rem; }
+.cita-fecha .mes { display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.cita-cuerpo h3 { margin: 0 0 0.2rem; font-size: 1.05rem; }
+.cita-cuerpo p { margin: 0; color: var(--tinta-suave); font-size: 0.95rem; }
+
+/* Franja de llamada final */
+.franja {
+  background: var(--verde-hondo);
+  color: var(--blanco);
+  text-align: center;
+  padding: 3rem 1.25rem;
+}
+.franja h2 { color: var(--blanco); }
+.franja p { color: #e6f3ec; max-width: 46ch; margin: 0 auto 1.6rem; }
+
+/* ---------- Pie ---------- */
+.pie {
+  background: var(--blanco);
+  border-top: 1px solid var(--linea);
+  padding: 2.5rem 0 2rem;
+}
+.pie-logos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.8rem 2.4rem;
+  justify-content: center;
+  margin-bottom: 1.6rem;
+}
+.pie-logos img { height: 42px; width: auto; opacity: 0.92; }
+.pie-logos .arrupe img { height: 34px; }
+.pie-nota {
+  text-align: center;
+  color: var(--tinta-suave);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.pie-nota a { color: var(--verde-hondo); }
+
+/* ---------- Página interna ---------- */
+.interior-cabecera {
+  background: var(--verde-vel);
+  padding: 2.5rem 0;
+  border-bottom: 1px solid var(--linea);
+}
+.interior-cabecera .eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--verde-hondo);
+  margin: 0 0 0.4rem;
+}
+.interior-cabecera h1 { margin: 0; max-width: 22ch; }
+
+.prosa { max-width: 68ch; }
+.prosa h2 { margin-top: 2rem; color: var(--verde-hondo); }
+.prosa ul { padding-left: 1.2rem; }
+.prosa li { margin-bottom: 0.5rem; }
+
+.cita-destacada {
+  border-left: 4px solid var(--verde);
+  background: var(--verde-vel);
+  padding: 1.2rem 1.4rem;
+  border-radius: 0 var(--radio) var(--radio) 0;
+  margin: 1.8rem 0;
+  font-style: normal;
+}
+.cita-destacada p { margin: 0; color: var(--tinta); }
+.cita-destacada cite { display: block; margin-top: 0.6rem; font-size: 0.9rem; color: var(--tinta-suave); font-style: normal; }
+
+/* =========================================================
+   Puntos de ruptura — de móvil hacia arriba
+   ========================================================= */
+
+/* Tablet */
+@media (min-width: 640px) {
+  .accesos { grid-template-columns: repeat(3, 1fr); }
+  .bloque { grid-template-columns: 1fr 1fr; }
+  .bloque.invertido .bloque-foto { order: 2; }
+  h1 { font-size: 2.4rem; }
+  .hero h1 { font-size: 2.7rem; }
+}
+
+/* Escritorio: menú horizontal, sin hamburguesa */
+@media (min-width: 860px) {
+  .menu-boton { display: none; }
+  .navegacion {
+    display: flex !important;
+    gap: 0.3rem;
+    padding: 0;
+    align-items: center;
+  }
+  .navegacion li a {
+    border-bottom: none;
+    padding: 0.5rem 0.85rem;
+    border-radius: var(--radio);
+  }
+  .navegacion li a:hover { background: var(--verde-vel); }
+  .navegacion a.privada {
+    border: 1.5px solid var(--verde);
+    margin-left: 0.4rem;
+  }
+  .marca img { height: 52px; }
+  .hero { min-height: 82vh; }
+  .hero h1 { font-size: 3.1rem; }
+}
+
+/* Respetar preferencia de menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}

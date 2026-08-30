@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor · Círculo Laudato Si' VLC</title>
+<style>
+  :root{
+    --verde:#2e9e5b; --verde-hondo:#1f7a45; --verde-vel:#eef6f0;
+    --azul:#1ba3e0; --azul-hondo:#147fb0; --tinta:#1a1a1a; --gris:#5a5a5a;
+    --linea:#dbe4dd; --blanco:#fff; --radio:10px;
+    --f:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--f);color:var(--tinta);background:#f4f7f5;line-height:1.55}
+  header.barra{
+    position:sticky;top:0;z-index:20;background:var(--verde-hondo);color:#fff;
+    padding:.8rem 1rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between
+  }
+  header.barra h1{font-size:1.05rem;margin:0}
+  header.barra .acciones{display:flex;gap:.5rem;flex-wrap:wrap}
+  .contenedor{max-width:820px;margin:0 auto;padding:1rem 1rem 4rem}
+  .aviso{background:#fff8e6;border:1px solid #f0d98a;border-radius:var(--radio);padding:.8rem 1rem;margin:1rem 0;font-size:.92rem;color:#6a5500}
+  details.grupo{background:#fff;border:1px solid var(--linea);border-radius:var(--radio);margin:1rem 0;overflow:hidden}
+  details.grupo>summary{
+    cursor:pointer;padding:1rem 1.2rem;font-weight:700;color:var(--verde-hondo);
+    background:var(--verde-vel);list-style:none;display:flex;justify-content:space-between;align-items:center
+  }
+  details.grupo>summary::-webkit-details-marker{display:none}
+  details.grupo>summary::after{content:"▾";color:var(--verde)}
+  details[open].grupo>summary::after{content:"▴"}
+  .cuerpo{padding:1.2rem}
+  label{display:block;font-weight:600;font-size:.9rem;margin:.9rem 0 .3rem;color:var(--gris)}
+  input[type=text],input[type=email],textarea,input[type=url]{
+    width:100%;padding:.6rem .7rem;border:1px solid var(--linea);border-radius:8px;
+    font-family:var(--f);font-size:1rem;color:var(--tinta);background:#fff
+  }
+  textarea{min-height:80px;resize:vertical}
+  input:focus,textarea:focus{outline:2px solid var(--azul);border-color:var(--azul)}
+  .fila{display:flex;gap:.8rem;flex-wrap:wrap}
+  .fila>div{flex:1;min-width:120px}
+  .boton{
+    display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1rem;border-radius:8px;
+    border:none;font-weight:700;cursor:pointer;font-size:.92rem;font-family:var(--f)
+  }
+  .b-blanco{background:#fff;color:var(--verde-hondo)}
+  .b-azul{background:var(--azul);color:#fff}
+  .b-verde{background:#fff;color:var(--verde-hondo);border:1.5px solid var(--verde)}
+  .b-mini{padding:.4rem .7rem;font-size:.82rem;background:#fff;border:1px solid var(--linea);color:var(--gris)}
+  .b-quitar{color:#b23b3b;border-color:#e6c3c3}
+  .item{border:1px solid var(--linea);border-radius:8px;padding:1rem;margin:.8rem 0;background:#fbfdfc}
+  .item-cab{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem}
+  .item-cab strong{color:var(--verde-hondo);font-size:.9rem}
+  .foto-caja{display:flex;gap:.8rem;align-items:center;flex-wrap:wrap;margin-top:.4rem}
+  .foto-previa{width:110px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--linea);background:var(--verde-vel)}
+  .foto-previa.vacia{display:flex;align-items:center;justify-content:center;color:var(--verde-hondo);font-size:.7rem;text-align:center;padding:4px}
+  .pista{font-size:.82rem;color:var(--gris);margin:.3rem 0 0}
+  .archivos-pendientes{font-size:.85rem;color:var(--gris)}
+  .archivos-pendientes b{color:var(--verde-hondo)}
+  dialog{border:none;border-radius:12px;padding:0;max-width:520px;width:92%;box-shadow:0 10px 50px rgba(0,0,0,.3)}
+  dialog .dcuerpo{padding:1.4rem}
+  dialog h2{margin:0 0 .6rem;color:var(--verde-hondo);font-size:1.15rem}
+  dialog ol{margin:.6rem 0 1rem;padding-left:1.3rem}
+  dialog li{margin-bottom:.4rem;font-size:.93rem}
+  dialog code{background:var(--verde-vel);padding:.1rem .35rem;border-radius:4px;font-size:.88rem}
+  .ok{color:#1f7a45;font-weight:700}
+</style>
+</head>
+<body>
+
+<header class="barra">
+  <h1>Editor · Círculo Laudato Si' VLC</h1>
+  <div class="acciones">
+    <button class="boton b-blanco" id="btnCargar">Cargar datos.json</button>
+    <button class="boton b-azul" id="btnGuardar">Guardar y descargar</button>
+  </div>
+</header>
+
+<div class="contenedor">
+
+  <div class="aviso">
+    Este editor funciona en tu ordenador. Rellena o modifica el contenido, añade fotos, y pulsa
+    <b>Guardar y descargar</b>. Se descargará el archivo <code>datos.json</code> y, si has cambiado fotos,
+    también las imágenes ya optimizadas. Luego súbelos a tu repositorio de GitHub. Nada se envía por internet.
+  </div>
+
+  <input type="file" id="inputCargar" accept="application/json" hidden>
+
+  <!-- GENERAL -->
+  <details class="grupo" open>
+    <summary>Datos generales</summary>
+    <div class="cuerpo">
+      <label>Correo de contacto</label>
+      <input type="email" id="g_correo" placeholder="correo@ejemplo.org">
+      <label>Enlace del Centro Arrupe (pie)</label>
+      <input type="url" id="g_arrupe" placeholder="https://...">
+    </div>
+  </details>
+
+  <!-- HERO -->
+  <details class="grupo">
+    <summary>Portada · cabecera principal</summary>
+    <div class="cuerpo">
+      <label>Antetítulo</label>
+      <input type="text" id="h_eyebrow">
+      <label>Titular</label>
+      <input type="text" id="h_titulo">
+      <label>Texto</label>
+      <textarea id="h_texto"></textarea>
+      <label>Texto del botón</label>
+      <input type="text" id="h_boton">
+      <label>Fotografía de fondo</label>
+      <div class="foto-caja" data-foto="hero">
+        <img class="foto-previa vacia" data-previa alt="">
+        <div>
+          <input type="file" accept="image/*" hidden data-input>
+          <button type="button" class="boton b-mini" data-elegir>Elegir foto…</button>
+          <button type="button" class="boton b-mini b-quitar" data-quitar>Quitar</button>
+          <p class="pista">Apaisada, se recorta a lo ancho. Se guardará como <b data-nombre>hero.jpg</b></p>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <!-- ACCESOS -->
+  <details class="grupo">
+    <summary>Portada · tres accesos</summary>
+    <div class="cuerpo" id="accesosCuerpo"></div>
+  </details>
+
+  <!-- ESPIRITUALIDAD -->
+  <details class="grupo">
+    <summary>Portada · espiritualidad</summary>
+    <div class="cuerpo">
+      <label>Antetítulo</label>
+      <input type="text" id="e_eyebrow">
+      <label>Título de la sección</label>
+      <input type="text" id="e_titulo">
+      <div id="espBloquesCuerpo"></div>
+    </div>
+  </details>
+
+  <!-- AGENDA -->
+  <details class="grupo" open>
+    <summary>Próximas citas y eventos</summary>
+    <div class="cuerpo">
+      <label>Antetítulo</label>
+      <input type="text" id="a_eyebrow">
+      <label>Título de la sección</label>
+      <input type="text" id="a_titulo">
+      <div id="citasCuerpo"></div>
+      <button type="button" class="boton b-verde" id="btnAddCita">+ Añadir cita</button>
+    </div>
+  </details>
+
+
+
+  <!-- PÁGINA ACTIVIDADES -->
+  <details class="grupo">
+    <summary>Página · Actividades</summary>
+    <div class="cuerpo">
+      <label>Antetítulo</label><input type="text" id="pa_eyebrow">
+      <label>Título</label><input type="text" id="pa_titulo">
+      <label>Introducción</label><textarea id="pa_intro"></textarea>
+      <label>Tipos de actividad</label>
+      <div id="pa_tipos"></div>
+      <button type="button" class="boton b-verde" id="btnAddTipo">+ Añadir tipo</button>
+      <p class="pista">Las próximas citas se editan en el apartado «Próximas citas y eventos»; esta página las muestra automáticamente.</p>
+    </div>
+  </details>
+
+  <!-- PÁGINA ESPIRITUALIDAD -->
+  <details class="grupo">
+    <summary>Página · Espiritualidad y recursos</summary>
+    <div class="cuerpo">
+      <label>Antetítulo</label><input type="text" id="pe_eyebrow">
+      <label>Título</label><input type="text" id="pe_titulo">
+      <label>Introducción</label><textarea id="pe_intro"></textarea>
+      <label>Recursos</label>
+      <div id="pe_recursos"></div>
+      <button type="button" class="boton b-verde" id="btnAddRecurso">+ Añadir recurso</button>
+      <p class="pista">Los bloques con foto de esta página se editan en «Portada · espiritualidad».</p>
+    </div>
+  </details>
+
+  <!-- ZONA DE MIEMBROS -->
+  <details class="grupo">
+    <summary>Zona de miembros (cifrada)</summary>
+    <div class="cuerpo">
+      <div class="aviso" style="margin-top:0">
+        Todo lo que pongas aquí se cifra con AES-256 y solo se puede leer con la contraseña.
+        Los PDF que adjuntes quedan <b>dentro</b> de la página cifrada, no accesibles por separado.
+        Genera <code>miembros.html</code> y súbelo a la raíz del repositorio.
+      </div>
+
+      <label>Título de la zona</label>
+      <input type="text" id="m_titulo" placeholder="Zona de miembros">
+
+      <label>Introducción o texto libre (opcional)</label>
+      <textarea id="m_intro" placeholder="Texto que aparece al abrir la zona. Puedes dejarlo vacío."></textarea>
+
+      <label>Documentos PDF</label>
+      <div id="m_docs"></div>
+      <input type="file" accept="application/pdf" id="m_addDoc" hidden multiple>
+      <button type="button" class="boton b-verde" id="btnAddDoc">+ Añadir PDF</button>
+      <p class="pista archivos-pendientes" data-docs-pendientes></p>
+
+      <label style="margin-top:1.2rem">Contraseña de acceso</label>
+      <div class="fila">
+        <div><input type="text" id="m_pass" placeholder="16+ caracteres, poco habitual"></div>
+        <div style="flex:0 0 auto"><button type="button" class="boton b-mini" id="btnPass">Sugerir</button></div>
+      </div>
+      <p class="pista">Usa una contraseña larga. Guárdala en un gestor: si se pierde, no hay forma de recuperar el contenido.</p>
+
+      <div style="margin-top:1.2rem">
+        <button type="button" class="boton b-azul" id="btnCifrar">Generar miembros.html cifrado</button>
+      </div>
+      <p class="pista" id="m_estado"></p>
+    </div>
+  </details>
+
+  <!-- CONTACTO -->
+  <details class="grupo">
+    <summary>Portada · llamada de contacto</summary>
+    <div class="cuerpo">
+      <label>Título</label>
+      <input type="text" id="c_titulo">
+      <label>Texto</label>
+      <textarea id="c_texto"></textarea>
+      <label>Texto del botón</label>
+      <input type="text" id="c_boton">
+    </div>
+  </details>
+
+</div>
+
+<dialog id="dlgGuardar">
+  <div class="dcuerpo">
+    <h2>Descargas listas</h2>
+    <p id="dlgResumen"></p>
+    <p>Ahora, para publicar los cambios:</p>
+    <ol>
+      <li>Sube <code>datos.json</code> a la carpeta <code>assets/</code> de tu repositorio.</li>
+      <li id="dlgPasoImg">Sube las imágenes descargadas a la carpeta <code>assets/img/</code>.</li>
+      <li>GitHub Pages actualizará la web en uno o dos minutos.</li>
+    </ol>
+    <button class="boton b-azul" id="dlgCerrar">Entendido</button>
+  </div>
+</dialog>
+
+<script>
+/* ================= Estado ================= */
+function esc(t){ var d=document.createElement('div'); d.textContent = (t==null?'':t); return d.innerHTML; }
+
+/* ============= Motor de cifrado (AES-256, PBKDF2 600k) ============= */
+var ITER_CIFRADO = 600000;
+var _enc = new TextEncoder();
+function _bufToB64(buf){var b=new Uint8Array(buf),s='';for(var i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return btoa(s);}
+async function _derivar(pass, salt, uso){
+  var base = await crypto.subtle.importKey('raw', _enc.encode(pass), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:ITER_CIFRADO,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,uso);
+}
+async function cifrarTexto(texto, pass){
+  var salt = crypto.getRandomValues(new Uint8Array(16));
+  var iv = crypto.getRandomValues(new Uint8Array(12));
+  var clave = await _derivar(pass, salt, ['encrypt']);
+  var c = await crypto.subtle.encrypt({name:'AES-GCM',iv:iv}, clave, _enc.encode(texto));
+  return {salt:_bufToB64(salt), iv:_bufToB64(iv), datos:_bufToB64(c)};
+}
+// PDFs pendientes de la zona de miembros: {nombre, dataURI}
+var docsMiembros = [];
+
+
+var datos = null;
+var fotosPendientes = {}; // clave -> {blob, nombre}
+
+/* ============= Utilidades imagen ============= */
+// Redimensiona y comprime en el navegador. Devuelve Promise<Blob>
+function procesarImagen(file, maxAncho, calidad){
+  return new Promise(function(res, rej){
+    var img = new Image();
+    img.onload = function(){
+      var escala = Math.min(1, maxAncho / img.width);
+      var w = Math.round(img.width * escala);
+      var h = Math.round(img.height * escala);
+      var c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      c.toBlob(function(b){ res(b); }, 'image/jpeg', calidad || 0.82);
+    };
+    img.onerror = rej;
+    img.src = URL.createObjectURL(file);
+  });
+}
+function descargarBlob(blob, nombre){
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = nombre;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* ============= Gestión de una caja de foto ============= */
+// clave: identificador; nombreArchivo: cómo se guardará; rutaEnDatos: función get/set
+function conectarFoto(caja, opciones){
+  var previa = caja.querySelector('[data-previa]');
+  var input = caja.querySelector('[data-input]');
+  var bElegir = caja.querySelector('[data-elegir]');
+  var bQuitar = caja.querySelector('[data-quitar]');
+  var nombreEl = caja.querySelector('[data-nombre]');
+  if (nombreEl) nombreEl.textContent = opciones.nombre;
+
+  function pintar(url, textoVacio){
+    if(url){ previa.src = url; previa.classList.remove('vacia'); previa.textContent=''; }
+    else { previa.removeAttribute('src'); previa.classList.add('vacia'); previa.textContent = textoVacio || 'sin foto'; }
+  }
+  // inicial
+  var actual = opciones.get();
+  pintar(actual ? actual : '', opciones.textoVacio);
+
+  bElegir.addEventListener('click', function(){ input.click(); });
+  input.addEventListener('change', function(){
+    var f = input.files[0]; if(!f) return;
+    procesarImagen(f, opciones.maxAncho, opciones.calidad).then(function(blob){
+      var url = URL.createObjectURL(blob);
+      pintar(url, opciones.textoVacio);
+      fotosPendientes[opciones.clave] = { blob: blob, nombre: opciones.nombre };
+      opciones.set('assets/img/' + opciones.nombre);
+      actualizarPendientes();
+    });
+  });
+  bQuitar.addEventListener('click', function(){
+    pintar('', opciones.textoVacio);
+    delete fotosPendientes[opciones.clave];
+    opciones.set('');
+    actualizarPendientes();
+  });
+}
+
+function actualizarPendientes(){
+  document.querySelectorAll('[data-pendientes]').forEach(function(el){
+    var n = Object.keys(fotosPendientes).length;
+    el.innerHTML = n ? ('Fotos por descargar: <b>'+n+'</b>') : '';
+  });
+}
+
+/* ============= Render de secciones repetibles ============= */
+function renderAccesos(){
+  var cont = document.getElementById('accesosCuerpo');
+  cont.innerHTML = '';
+  datos.accesos.forEach(function(a, i){
+    var div = document.createElement('div');
+    div.className = 'item';
+    div.innerHTML =
+      '<div class="item-cab"><strong>Acceso '+(i+1)+'</strong></div>'+
+      '<label>Título</label><input type="text" data-k="titulo">'+
+      '<label>Texto</label><textarea data-k="texto"></textarea>'+
+      '<div class="fila"><div><label>Texto del enlace</label><input type="text" data-k="enlaceTexto"></div>'+
+      '<div><label>Enlace</label><input type="text" data-k="enlace"></div></div>';
+    div.querySelector('[data-k=titulo]').value = a.titulo||'';
+    div.querySelector('[data-k=texto]').value = a.texto||'';
+    div.querySelector('[data-k=enlaceTexto]').value = a.enlaceTexto||'';
+    div.querySelector('[data-k=enlace]').value = a.enlace||'';
+    div.querySelectorAll('[data-k]').forEach(function(inp){
+      inp.addEventListener('input', function(){ datos.accesos[i][inp.dataset.k] = inp.value; });
+    });
+    cont.appendChild(div);
+  });
+}
+
+function renderEspBloques(){
+  var cont = document.getElementById('espBloquesCuerpo');
+  cont.innerHTML = '';
+  datos.espiritualidad.bloques.forEach(function(b, i){
+    var div = document.createElement('div');
+    div.className = 'item';
+    div.innerHTML =
+      '<div class="item-cab"><strong>Bloque '+(i+1)+'</strong></div>'+
+      '<label>Párrafos (uno por línea)</label><textarea data-k="parrafos"></textarea>'+
+      '<div class="fila"><div><label>Texto del botón (opcional)</label><input type="text" data-k="boton"></div>'+
+      '<div><label>Enlace del botón</label><input type="text" data-k="botonEnlace"></div></div>'+
+      '<label>Fotografía</label>'+
+      '<div class="foto-caja"><img class="foto-previa vacia" data-previa alt="">'+
+      '<div><input type="file" accept="image/*" hidden data-input>'+
+      '<button type="button" class="boton b-mini" data-elegir>Elegir foto…</button> '+
+      '<button type="button" class="boton b-mini b-quitar" data-quitar>Quitar</button>'+
+      '<p class="pista">Se guardará como <b data-nombre></b></p></div></div>';
+    div.querySelector('[data-k=parrafos]').value = (b.parrafos||[]).join('\n');
+    div.querySelector('[data-k=boton]').value = b.boton||'';
+    div.querySelector('[data-k=botonEnlace]').value = b.botonEnlace||'';
+    div.querySelector('[data-k=parrafos]').addEventListener('input', function(e){
+      datos.espiritualidad.bloques[i].parrafos = e.target.value.split('\n').filter(function(x){return x.trim();});
+    });
+    div.querySelector('[data-k=boton]').addEventListener('input', function(e){ datos.espiritualidad.bloques[i].boton = e.target.value; });
+    div.querySelector('[data-k=botonEnlace]').addEventListener('input', function(e){ datos.espiritualidad.bloques[i].botonEnlace = e.target.value; });
+    conectarFoto(div.querySelector('.foto-caja'), {
+      clave:'esp'+i, nombre:'espiritualidad-'+(i+1)+'.jpg', maxAncho:1200, calidad:0.82,
+      textoVacio: b.textoFoto || 'sin foto',
+      get:function(){ return datos.espiritualidad.bloques[i].foto; },
+      set:function(v){ datos.espiritualidad.bloques[i].foto = v; }
+    });
+    cont.appendChild(div);
+  });
+}
+
+function renderCitas(){
+  var cont = document.getElementById('citasCuerpo');
+  cont.innerHTML = '';
+  datos.agenda.citas.forEach(function(c, i){
+    var div = document.createElement('div');
+    div.className = 'item';
+    div.innerHTML =
+      '<div class="item-cab"><strong>Cita '+(i+1)+'</strong>'+
+      '<button type="button" class="boton b-mini b-quitar" data-borrar>Eliminar</button></div>'+
+      '<div class="fila"><div style="max-width:90px"><label>Día</label><input type="text" data-k="dia"></div>'+
+      '<div style="max-width:120px"><label>Mes</label><input type="text" data-k="mes"></div>'+
+      '<div><label>Título</label><input type="text" data-k="titulo"></div></div>'+
+      '<label>Detalle</label><textarea data-k="detalle"></textarea>';
+    div.querySelector('[data-k=dia]').value = c.dia||'';
+    div.querySelector('[data-k=mes]').value = c.mes||'';
+    div.querySelector('[data-k=titulo]').value = c.titulo||'';
+    div.querySelector('[data-k=detalle]').value = c.detalle||'';
+    div.querySelectorAll('[data-k]').forEach(function(inp){
+      inp.addEventListener('input', function(){ datos.agenda.citas[i][inp.dataset.k] = inp.value; });
+    });
+    div.querySelector('[data-borrar]').addEventListener('click', function(){
+      datos.agenda.citas.splice(i,1); renderCitas();
+    });
+    cont.appendChild(div);
+  });
+}
+
+/* ============= Volcar datos a los campos ============= */
+function pintarTodo(){
+  document.getElementById('g_correo').value = datos.sitio.correo||'';
+  document.getElementById('g_arrupe').value = datos.sitio.enlaceArrupe||'';
+  document.getElementById('h_eyebrow').value = datos.hero.eyebrow||'';
+  document.getElementById('h_titulo').value = datos.hero.titulo||'';
+  document.getElementById('h_texto').value = datos.hero.texto||'';
+  document.getElementById('h_boton').value = datos.hero.boton||'';
+  document.getElementById('e_eyebrow').value = datos.espiritualidad.eyebrow||'';
+  document.getElementById('e_titulo').value = datos.espiritualidad.titulo||'';
+  document.getElementById('a_eyebrow').value = datos.agenda.eyebrow||'';
+  document.getElementById('a_titulo').value = datos.agenda.titulo||'';
+  document.getElementById('c_titulo').value = datos.contacto.titulo||'';
+  document.getElementById('c_texto').value = datos.contacto.texto||'';
+  document.getElementById('c_boton').value = datos.contacto.boton||'';
+
+  // enlaces simples
+  liga('g_correo', function(v){ datos.sitio.correo=v; });
+  liga('g_arrupe', function(v){ datos.sitio.enlaceArrupe=v; });
+  liga('h_eyebrow', function(v){ datos.hero.eyebrow=v; });
+  liga('h_titulo', function(v){ datos.hero.titulo=v; });
+  liga('h_texto', function(v){ datos.hero.texto=v; });
+  liga('h_boton', function(v){ datos.hero.boton=v; });
+  liga('e_eyebrow', function(v){ datos.espiritualidad.eyebrow=v; });
+  liga('e_titulo', function(v){ datos.espiritualidad.titulo=v; });
+  liga('a_eyebrow', function(v){ datos.agenda.eyebrow=v; });
+  liga('a_titulo', function(v){ datos.agenda.titulo=v; });
+  liga('c_titulo', function(v){ datos.contacto.titulo=v; });
+  liga('c_texto', function(v){ datos.contacto.texto=v; });
+  liga('c_boton', function(v){ datos.contacto.boton=v; });
+
+  asegurarPaginas();
+  document.getElementById('pa_eyebrow').value = datos.paginaActividades.eyebrow||'';
+  document.getElementById('pa_titulo').value = datos.paginaActividades.titulo||'';
+  document.getElementById('pa_intro').value = datos.paginaActividades.intro||'';
+  document.getElementById('pe_eyebrow').value = datos.paginaEspiritualidad.eyebrow||'';
+  document.getElementById('pe_titulo').value = datos.paginaEspiritualidad.titulo||'';
+  document.getElementById('pe_intro').value = datos.paginaEspiritualidad.intro||'';
+  liga('pa_eyebrow', function(v){ datos.paginaActividades.eyebrow=v; });
+  liga('pa_titulo', function(v){ datos.paginaActividades.titulo=v; });
+  liga('pa_intro', function(v){ datos.paginaActividades.intro=v; });
+  liga('pe_eyebrow', function(v){ datos.paginaEspiritualidad.eyebrow=v; });
+  liga('pe_titulo', function(v){ datos.paginaEspiritualidad.titulo=v; });
+  liga('pe_intro', function(v){ datos.paginaEspiritualidad.intro=v; });
+  renderTipos();
+  renderRecursos();
+  renderAccesos();
+  renderEspBloques();
+  renderCitas();
+
+  // foto del hero
+  var cajaHero = document.querySelector('[data-foto=hero]');
+  cajaHero.replaceWith(cajaHero.cloneNode(true)); // limpiar listeners previos
+  conectarFoto(document.querySelector('[data-foto=hero]'), {
+    clave:'hero', nombre:'hero.jpg', maxAncho:1800, calidad:0.8,
+    textoVacio:'sin foto',
+    get:function(){ return datos.hero.foto; },
+    set:function(v){ datos.hero.foto = v; }
+  });
+}
+function liga(id, set){
+  var el = document.getElementById(id);
+  el.oninput = function(){ set(el.value); };
+}
+
+/* ============= Cargar / Guardar ============= */
+document.getElementById('btnCargar').addEventListener('click', function(){ document.getElementById('inputCargar').click(); });
+document.getElementById('inputCargar').addEventListener('change', function(e){
+  var f = e.target.files[0]; if(!f) return;
+  var r = new FileReader();
+  r.onload = function(){
+    try { datos = JSON.parse(r.result); fotosPendientes={}; actualizarPendientes(); pintarTodo(); }
+    catch(err){ alert('El archivo no es un datos.json válido.'); }
+  };
+  r.readAsText(f);
+});
+
+document.getElementById('btnAddTipo').addEventListener('click',function(){ asegurarPaginas(); datos.paginaActividades.tipos.push({titulo:'Nuevo tipo',texto:''}); renderTipos(); });
+document.getElementById('btnAddRecurso').addEventListener('click',function(){ asegurarPaginas(); datos.paginaEspiritualidad.recursos.push({titulo:'Nuevo recurso',texto:'',enlace:''}); renderRecursos(); });
+document.getElementById('btnAddCita').addEventListener('click', function(){
+  datos.agenda.citas.push({dia:'00',mes:'Mes',titulo:'Nueva cita',detalle:'Lugar · hora · descripción.'});
+  renderCitas();
+});
+
+document.getElementById('btnGuardar').addEventListener('click', function(){
+  if(!datos){ alert('Primero carga un datos.json o espera a que cargue el de ejemplo.'); return; }
+  // Descargar JSON
+  var jsonBlob = new Blob([JSON.stringify(datos, null, 2)], {type:'application/json'});
+  descargarBlob(jsonBlob, 'datos.json');
+  // Descargar fotos pendientes
+  var claves = Object.keys(fotosPendientes);
+  claves.forEach(function(k, idx){
+    setTimeout(function(){ descargarBlob(fotosPendientes[k].blob, fotosPendientes[k].nombre); }, 300*(idx+1));
+  });
+  // Diálogo
+  var resumen = 'Se ha descargado datos.json' + (claves.length ? ' y '+claves.length+' imagen(es).' : '.');
+  document.getElementById('dlgResumen').textContent = resumen;
+  document.getElementById('dlgPasoImg').style.display = claves.length ? '' : 'none';
+  document.getElementById('dlgGuardar').showModal();
+});
+document.getElementById('dlgCerrar').addEventListener('click', function(){ document.getElementById('dlgGuardar').close(); });
+
+
+
+/* ============= Páginas Actividades y Espiritualidad ============= */
+function asegurarPaginas(){
+  if(!datos.paginaActividades) datos.paginaActividades={eyebrow:'Actividades',titulo:'',intro:'',tipos:[]};
+  if(!datos.paginaActividades.tipos) datos.paginaActividades.tipos=[];
+  if(!datos.paginaEspiritualidad) datos.paginaEspiritualidad={eyebrow:'Espiritualidad',titulo:'',intro:'',recursos:[]};
+  if(!datos.paginaEspiritualidad.recursos) datos.paginaEspiritualidad.recursos=[];
+}
+function renderTipos(){
+  var cont=document.getElementById('pa_tipos'); cont.innerHTML='';
+  datos.paginaActividades.tipos.forEach(function(t,i){
+    var div=document.createElement('div'); div.className='item';
+    div.innerHTML='<div class="item-cab"><strong>Tipo '+(i+1)+'</strong>'+
+      '<button type="button" class="boton b-mini b-quitar" data-borrar>Eliminar</button></div>'+
+      '<label>Título</label><input type="text" data-k="titulo">'+
+      '<label>Texto</label><textarea data-k="texto"></textarea>';
+    div.querySelector('[data-k=titulo]').value=t.titulo||'';
+    div.querySelector('[data-k=texto]').value=t.texto||'';
+    div.querySelectorAll('[data-k]').forEach(function(inp){inp.addEventListener('input',function(){datos.paginaActividades.tipos[i][inp.dataset.k]=inp.value;});});
+    div.querySelector('[data-borrar]').addEventListener('click',function(){datos.paginaActividades.tipos.splice(i,1);renderTipos();});
+    cont.appendChild(div);
+  });
+}
+function renderRecursos(){
+  var cont=document.getElementById('pe_recursos'); cont.innerHTML='';
+  datos.paginaEspiritualidad.recursos.forEach(function(r,i){
+    var div=document.createElement('div'); div.className='item';
+    div.innerHTML='<div class="item-cab"><strong>Recurso '+(i+1)+'</strong>'+
+      '<button type="button" class="boton b-mini b-quitar" data-borrar>Eliminar</button></div>'+
+      '<label>Título</label><input type="text" data-k="titulo">'+
+      '<label>Texto</label><textarea data-k="texto"></textarea>'+
+      '<label>Enlace</label><input type="text" data-k="enlace" placeholder="https://...">';
+    div.querySelector('[data-k=titulo]').value=r.titulo||'';
+    div.querySelector('[data-k=texto]').value=r.texto||'';
+    div.querySelector('[data-k=enlace]').value=r.enlace||'';
+    div.querySelectorAll('[data-k]').forEach(function(inp){inp.addEventListener('input',function(){datos.paginaEspiritualidad.recursos[i][inp.dataset.k]=inp.value;});});
+    div.querySelector('[data-borrar]').addEventListener('click',function(){datos.paginaEspiritualidad.recursos.splice(i,1);renderRecursos();});
+    cont.appendChild(div);
+  });
+}
+
+/* ============= Zona de miembros ============= */
+function fileADataURI(file){
+  return new Promise(function(res,rej){
+    var r=new FileReader(); r.onload=function(){res(r.result);}; r.onerror=rej; r.readAsDataURL(file);
+  });
+}
+function renderDocs(){
+  var cont=document.getElementById('m_docs'); cont.innerHTML='';
+  docsMiembros.forEach(function(d,i){
+    var div=document.createElement('div'); div.className='item';
+    div.innerHTML='<div class="item-cab"><strong>'+esc(d.nombre)+'</strong>'+
+      '<button type="button" class="boton b-mini b-quitar" data-borrar>Quitar</button></div>'+
+      '<label>Título mostrado</label><input type="text" data-t>'+
+      '<p class="pista">'+Math.round(d.dataURI.length/1365)+' KB aprox.</p>';
+    div.querySelector('[data-t]').value = d.titulo||d.nombre;
+    div.querySelector('[data-t]').addEventListener('input',function(e){ docsMiembros[i].titulo=e.target.value; });
+    div.querySelector('[data-borrar]').addEventListener('click',function(){ docsMiembros.splice(i,1); renderDocs(); actualizarDocsPend(); });
+    cont.appendChild(div);
+  });
+}
+function actualizarDocsPend(){
+  var el=document.querySelector('[data-docs-pendientes]');
+  if(el) el.innerHTML = docsMiembros.length ? ('PDF incluidos: <b>'+docsMiembros.length+'</b>') : '';
+}
+document.getElementById('btnAddDoc').addEventListener('click',function(){ document.getElementById('m_addDoc').click(); });
+document.getElementById('m_addDoc').addEventListener('change',function(e){
+  var files=Array.prototype.slice.call(e.target.files||[]);
+  var proms=files.map(function(f){ return fileADataURI(f).then(function(uri){ docsMiembros.push({nombre:f.name,titulo:f.name,dataURI:uri}); }); });
+  Promise.all(proms).then(function(){ renderDocs(); actualizarDocsPend(); e.target.value=''; });
+});
+document.getElementById('btnPass').addEventListener('click',function(){
+  var abc='abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var a=crypto.getRandomValues(new Uint8Array(20)); var s='';
+  for(var i=0;i<a.length;i++) s+=abc[a[i]%abc.length];
+  document.getElementById('m_pass').value=s;
+});
+
+function construirContenidoMiembros(){
+  var titulo = document.getElementById('m_titulo').value || 'Zona de miembros';
+  var intro = document.getElementById('m_intro').value || '';
+  var html = '<div class="barra-sup"><strong>'+esc(titulo)+'</strong><a href="index.html">\u2190 Volver a la web</a></div>';
+  html += '<div style="max-width:820px;margin:0 auto;padding:1.5rem 1.2rem 4rem">';
+  if(intro){ intro.split(/\n+/).forEach(function(p){ if(p.trim()) html+='<p>'+esc(p)+'</p>'; }); }
+  docsMiembros.forEach(function(d){
+    html += '<div class="doc"><h2>'+esc(d.titulo||d.nombre)+'</h2>'+
+            '<div class="doc-acciones">'+
+              '<a class="doc-btn" href="'+d.dataURI+'" target="_blank" rel="noopener">Abrir PDF</a> '+
+              '<a class="doc-btn secundario" href="'+d.dataURI+'" download="'+esc(d.nombre)+'">Descargar</a>'+
+            '</div>'+
+            '<details class="doc-previa"><summary>Ver aqu\u00ed</summary>'+
+              '<embed src="'+d.dataURI+'" type="application/pdf" width="100%" height="600px" style="border:1px solid #dbe4dd;border-radius:8px;margin-top:.6rem">'+
+            '</details></div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+var PLANTILLA_MIEMBROS = "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>__TITULO__ \u00b7 C\u00edrculo Laudato Si' VLC</title>\n<style>\n  :root{--verde:#2e9e5b;--verde-hondo:#1f7a45;--verde-vel:#eef6f0;--azul:#1ba3e0;--azul-hondo:#147fb0;--tinta:#1a1a1a;--linea:#dbe4dd;--radio:10px;--f:system-ui,-apple-system,\"Segoe UI\",Roboto,Arial,sans-serif}\n  *{box-sizing:border-box}\n  body{margin:0;font-family:var(--f);color:var(--tinta);background:#f4f7f5;line-height:1.6}\n  .acceso{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem}\n  .tarjeta{background:#fff;border:1px solid var(--linea);border-radius:16px;box-shadow:0 8px 40px rgba(31,122,69,.1);padding:2rem 1.6rem;max-width:400px;width:100%;text-align:center}\n  .tarjeta img{height:54px;width:auto;margin:0 auto 1rem}\n  .tarjeta h1{font-size:1.25rem;color:var(--verde-hondo);margin:.2rem 0 .3rem}\n  .tarjeta p{color:#5a5a5a;font-size:.92rem;margin:0 0 1.3rem}\n  .campo{display:flex;flex-direction:column;gap:.6rem}\n  input[type=password]{padding:.8rem .9rem;border:1px solid var(--linea);border-radius:10px;font-size:1rem;font-family:var(--f);text-align:center}\n  input[type=password]:focus{outline:2px solid var(--azul);border-color:var(--azul)}\n  button{padding:.85rem 1rem;border:none;border-radius:10px;background:var(--azul);color:#fff;font-weight:700;font-size:1rem;cursor:pointer;font-family:var(--f)}\n  button:hover{background:var(--azul-hondo)}\n  .error{color:#b23b3b;font-size:.9rem;min-height:1.2em;margin-top:.6rem}\n  .contenido{display:none;max-width:820px;margin:0 auto;padding:1.5rem 1.2rem 4rem}\n  .contenido.visible{display:block}\n  .barra-sup{background:var(--verde-hondo);color:#fff;padding:.9rem 1.2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}\n  .barra-sup strong{font-size:1rem}\n  .barra-sup a{color:#cdeede;font-size:.85rem;text-decoration:none}\n  .barra-sup a:hover{text-decoration:underline}\n  .doc{margin:1.5rem 0}\n  .cargando{text-align:center;color:var(--verde-hondo);padding:2rem}\n  .doc-acciones{display:flex;gap:.6rem;flex-wrap:wrap;margin:.4rem 0 .2rem}.doc-btn{display:inline-block;padding:.65rem 1.1rem;border-radius:8px;background:var(--azul);color:#fff;text-decoration:none;font-weight:700;font-size:.92rem}.doc-btn:hover{background:var(--azul-hondo)}.doc-btn.secundario{background:#fff;color:var(--verde-hondo);border:1.5px solid var(--verde)}.doc-previa{margin-top:.4rem}.doc-previa>summary{cursor:pointer;color:var(--verde-hondo);font-size:.9rem;font-weight:600}@media(prefers-reduced-motion:reduce){*{transition:none!important}}\n</style>\n</head>\n<body>\n\n  <div class=\"acceso\" id=\"acceso\">\n    <div class=\"tarjeta\">\n      \n      <h1>__TITULO__</h1>\n      <p>Contenido reservado a los miembros del C\u00edrculo. Introduce la contrase\u00f1a para acceder.</p>\n      <div class=\"campo\">\n        <input type=\"password\" id=\"clave\" placeholder=\"Contrase\u00f1a\" autocomplete=\"current-password\" autofocus>\n        <button id=\"entrar\">Entrar</button>\n      </div>\n      <div class=\"error\" id=\"error\"></div>\n    </div>\n  </div>\n\n  <div id=\"contenido\" class=\"contenido\"></div>\n\n  <script>\n    var PAQUETE = /*__PAQUETE__*/null;\n    var ITER = 600000;\n    var enc = new TextEncoder(), dec = new TextDecoder();\n    function b64ToBuf(b64){var bin=atob(b64);var b=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);return b;}\n    async function derivar(pass, salt){\n      var base = await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']);\n      return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:ITER,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);\n    }\n    async function abrir(){\n      var pass = document.getElementById('clave').value;\n      var err = document.getElementById('error');\n      if(!pass){ err.textContent='Escribe la contrase\u00f1a.'; return; }\n      err.textContent=''; \n      var btn=document.getElementById('entrar'); btn.textContent='Descifrando\u2026'; btn.disabled=true;\n      try{\n        var clave = await derivar(pass, b64ToBuf(PAQUETE.salt));\n        var plano = await crypto.subtle.decrypt({name:'AES-GCM',iv:b64ToBuf(PAQUETE.iv)},clave,b64ToBuf(PAQUETE.datos));\n        var html = dec.decode(plano);\n        document.getElementById('acceso').style.display='none';\n        var cont = document.getElementById('contenido');\n        cont.innerHTML = html;\n        cont.classList.add('visible');\n        // ejecutar cualquier ajuste posterior si hiciera falta\n      }catch(e){\n        err.textContent='Contrase\u00f1a incorrecta.';\n        btn.textContent='Entrar'; btn.disabled=false;\n      }\n    }\n    document.getElementById('entrar').addEventListener('click', abrir);\n    document.getElementById('clave').addEventListener('keydown', function(e){ if(e.key==='Enter') abrir(); });\n  <\/script>\n</body>\n</html>";
+
+document.getElementById('btnCifrar').addEventListener('click', async function(){
+  var pass=document.getElementById('m_pass').value;
+  var estado=document.getElementById('m_estado');
+  if(!pass || pass.length<8){ estado.textContent='Pon una contrase\u00f1a de al menos 8 caracteres (recomendado 16+).'; return; }
+  estado.textContent='Cifrando\u2026';
+  try{
+    var interno = construirContenidoMiembros();
+    var paquete = await cifrarTexto(interno, pass);
+    var titulo=(document.getElementById('m_titulo').value||'Zona de miembros');
+    var pagina = PLANTILLA_MIEMBROS
+      .replace('/*__PAQUETE__*/null', JSON.stringify(paquete))
+      .replace(/__TITULO__/g, titulo.replace(/</g,'&lt;'));
+    var blob=new Blob([pagina],{type:'text/html'});
+    descargarBlob(blob,'miembros.html');
+    estado.innerHTML='<span class="ok">Listo:</span> miembros.html descargado. S\u00fabelo a la ra\u00edz del repositorio.';
+  }catch(e){ console.error(e); estado.textContent='Error al cifrar: '+e.message; }
+});
+
+/* ============= Arranque: cargar datos.json de la web ============= */
+fetch('assets/datos.json')
+  .then(function(r){ return r.json(); })
+  .then(function(d){ datos = d; pintarTodo(); })
+  .catch(function(){
+    // Si no se encuentra, arrancamos con una estructura mínima
+    datos = {sitio:{correo:'',enlaceArrupe:''},hero:{eyebrow:'',titulo:'',texto:'',boton:'',foto:''},
+      accesos:[], espiritualidad:{eyebrow:'',titulo:'',bloques:[]},
+      agenda:{eyebrow:'Agenda',titulo:'Próximas citas',citas:[]},contacto:{titulo:'',texto:'',boton:''}};
+    pintarTodo();
+    document.querySelector('.aviso').innerHTML += '<br><b>Nota:</b> no se encontró assets/datos.json. Puedes cargarlo con el botón de arriba.';
+  });
+</script>
+</body>
+</html>

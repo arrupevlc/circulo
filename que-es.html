@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Qué es el Círculo · Laudato Si' VLC</title>
+  <meta name="description" content="Qué es un Círculo Laudato Si' y qué caracteriza al Círculo de València, vinculado al Centro Arrupe.">
+  <link rel="stylesheet" href="assets/estilo.css">
+</head>
+<body>
+
+  <!-- ==================== CABECERA ==================== -->
+  <header class="cabecera">
+    <div class="cabecera-fila">
+      <a class="marca" href="index.html" aria-label="Inicio · Círculo Laudato Si' VLC">
+        <img src="assets/img/logo-circulo.png" alt="Laudato Si' VLC · Arrupe València">
+      </a>
+      <button class="menu-boton" id="menuBoton" aria-label="Abrir menú" aria-expanded="false" aria-controls="menuPrincipal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>
+        </svg>
+      </button>
+    </div>
+    <ul class="navegacion" id="menuPrincipal">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="que-es.html">Qué es el Círculo</a></li>
+      <li><a href="actividades.html">Actividades</a></li>
+      <li><a href="espiritualidad.html">Espiritualidad</a></li>
+      <li><a href="index.html#contacto">Contacto</a></li>
+      <li><a class="privada" href="miembros.html" title="Acceso reservado a miembros">Zona de miembros</a></li>
+    </ul>
+  </header>
+
+  <!-- ==================== CABECERA INTERIOR ==================== -->
+  <section class="interior-cabecera">
+    <div class="contenedor">
+      <p class="eyebrow">El Círculo</p>
+      <h1>Qué es un Círculo Laudato Si'</h1>
+    </div>
+  </section>
+
+  <!-- ==================== CONTENIDO ==================== -->
+  <section class="seccion">
+    <div class="contenedor">
+      <div class="prosa">
+        <p>Un Círculo Laudato Si' es un grupo pequeño de personas que se reúne de manera estable para profundizar su relación con Dios rezando con y por la creación, y para pasar a la acción en el cuidado de la casa común. Los Círculos forman parte del <a href="https://laudatosimovement.org/" target="_blank" rel="noopener">Laudato Si' Movement</a>, la red internacional que reúne a comunidades católicas de todo el mundo en torno a la ecología integral.</p>
+
+        <h2>De dónde nace</h2>
+        <p>La encíclica <em>Laudato Si'</em>, publicada por el papa Francisco en 2015, propuso una mirada nueva: todo está conectado, y el cuidado de la tierra no se separa del cuidado de las personas ni de la vida espiritual. Los Círculos nacen para llevar esa mirada a lo cotidiano, en comunidades concretas y cercanas.</p>
+
+        <div class="cita-destacada">
+          <p>«Todo está relacionado, y el cuidado auténtico de nuestra propia vida y de nuestras relaciones con la naturaleza es inseparable de la fraternidad, la justicia y la fidelidad a los demás.»</p>
+          <cite>Laudato Si', 70</cite>
+        </div>
+
+        <h2>Qué caracteriza al Círculo de València</h2>
+        <p>Nuestro Círculo se reúne en el Centro Arrupe de València y bebe de la espiritualidad ignaciana. Eso marca nuestro modo de proceder: escucha, discernimiento y una atención especial a unir la oración con gestos concretos y sostenidos en el tiempo.</p>
+        <ul>
+          <li>Nos reunimos con periodicidad para orar y compartir.</li>
+          <li>Cuidamos la formación en torno a la <em>Laudato Si'</em> y la <em>Laudate Deum</em>.</li>
+          <li>Participamos en momentos del calendario común, como el Tiempo de la Creación.</li>
+          <li>Buscamos compromisos concretos, personales y comunitarios.</li>
+        </ul>
+
+        <h2>Cómo se participa</h2>
+        <p>El Círculo está abierto a quien quiera caminar con nosotros, sin necesidad de conocimientos previos. Basta con el deseo de cuidar la casa común y de hacerlo en comunidad. Si quieres conocernos, escríbenos y te contamos cuándo es el próximo encuentro.</p>
+        <p><a class="boton boton-primario" href="index.html#contacto">Ponte en contacto</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== PIE ==================== -->
+  <footer class="pie">
+    <div class="contenedor">
+      <div class="pie-logos">
+        <a class="movement" href="https://laudatosimovement.org/" target="_blank" rel="noopener">
+          <img src="assets/img/logo-movement.png" alt="Laudato Si' Movement">
+        </a>
+        <a class="arrupe" href="#" rel="noopener">
+          <img src="assets/img/logo-arrupe.png" alt="Centro Arrupe · Jesuitas València">
+        </a>
+      </div>
+      <p class="pie-nota">
+        Círculo Laudato Si' integrado en el <a href="https://laudatosimovement.org/" target="_blank" rel="noopener">Laudato Si' Movement</a>
+        y vinculado al Centro Arrupe · Jesuitas València.<br>
+        © <span id="anyo"></span> Círculo Laudato Si' VLC.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    var boton = document.getElementById('menuBoton');
+    var menu = document.getElementById('menuPrincipal');
+    boton.addEventListener('click', function () {
+      var abierto = menu.classList.toggle('abierta');
+      boton.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+      boton.setAttribute('aria-label', abierto ? 'Cerrar menú' : 'Abrir menú');
+    });
+    menu.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () { menu.classList.remove('abierta'); boton.setAttribute('aria-expanded','false'); });
+    });
+    document.getElementById('anyo').textContent = new Date().getFullYear();
+  </script>
+
+</body>
+</html>
