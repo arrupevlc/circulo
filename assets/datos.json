@@ -5,8 +5,8 @@
     "enlaceArrupe": "https://www.centroarrupevalencia.org/"
   },
   "hero": {
-    "eyebrow": "València · Centro Arrupe",
-    "titulo": "Rezar y actuar por el cuidado de la casa común",
+    "eyebrow": "València · Centro Arrupe · Jesuitas de València",
+    "titulo": "Oración, Reflexión y Acción por el Cuidado de la Casa Común",
     "texto": "Somos una pequeña comunidad que, desde la espiritualidad ignaciana, escucha la llamada de la Laudato Si' y la lleva a la vida.",
     "boton": "Súmate al Círculo",
     "foto": ""
@@ -36,7 +36,7 @@
     "titulo": "Una espiritualidad que cuida la creación",
     "bloques": [
       {
-        "foto": "",
+        "foto": "assets/img/comunidad.jpg",
         "textoFoto": "[ Fotografía: comunidad reunida ]",
         "parrafos": [
           "Inspirados en la encíclica Laudato Si' del papa Francisco, entendemos el cuidado de la casa común como una conversión que abarca la vida entera: la relación con Dios, con los demás y con la tierra.",
@@ -46,7 +46,7 @@
         "botonEnlace": ""
       },
       {
-        "foto": "",
+        "foto": "assets/img/paisaje.jpg",
         "textoFoto": "[ Fotografía: paisaje valenciano ]",
         "parrafos": [
           "La Laudato Si' nos recuerda que todo está conectado. Por eso unimos la oración con la acción: pequeños compromisos personales y comunitarios que hacen visible que la creación importa."
