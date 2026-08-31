@@ -129,9 +129,9 @@ button:focus-visible {
 /* ---------- Hero de portada ---------- */
 .hero {
   position: relative;
-  min-height: 78vh;
+  min-height: 52vh;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   color: var(--blanco);
   background:
     linear-gradient(180deg, rgba(20,60,40,0.15) 0%, rgba(20,60,40,0.72) 100%),
@@ -142,7 +142,7 @@ button:focus-visible {
 /* Cuando haya foto real, se pone como imagen de fondo inline en el HTML */
 
 .hero-texto {
-  padding: 2.5rem 1.25rem 3rem;
+  padding: 3rem 1.25rem;
   max-width: var(--ancho-max);
   margin: 0 auto;
   width: 100%;
@@ -187,7 +187,7 @@ button:focus-visible {
 .boton-borde:hover { background: var(--verde-vel); color: var(--verde-hondo); }
 
 /* ---------- Secciones ---------- */
-.seccion { padding: 3rem 0; }
+.seccion { padding: 2.5rem 0; }
 .seccion-vel { background: var(--verde-vel); }
 
 .seccion-titulo {
@@ -258,7 +258,7 @@ button:focus-visible {
   background: var(--verde-hondo);
   color: var(--blanco);
   text-align: center;
-  padding: 3rem 1.25rem;
+  padding: 2.75rem 1.25rem;
 }
 .franja h2 { color: var(--blanco); }
 .franja p { color: #e6f3ec; max-width: 46ch; margin: 0 auto 1.6rem; }
@@ -290,7 +290,7 @@ button:focus-visible {
 /* ---------- Página interna ---------- */
 .interior-cabecera {
   background: var(--verde-vel);
-  padding: 2.5rem 0;
+  padding: 2.25rem 0;
   border-bottom: 1px solid var(--linea);
 }
 .interior-cabecera .eyebrow {
@@ -352,7 +352,7 @@ button:focus-visible {
     margin-left: 0.4rem;
   }
   .marca img { height: 52px; }
-  .hero { min-height: 82vh; }
+  .hero { min-height: 58vh; }
   .hero h1 { font-size: 3.1rem; }
 }
 
